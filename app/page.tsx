@@ -1,8 +1,17 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Github, Linkedin, Mail, ExternalLink, ChevronDown, Gamepad2, Code2, GraduationCap, Briefcase, X, User } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+
+type Project = {
+  title: string
+  description: string
+  tags: string[]
+  imageUrl: string
+  screenshots: string[]
+}
 
 // Lightbox modal for viewing project images
 function Lightbox({ 
@@ -12,9 +21,17 @@ function Lightbox({
 }: { 
   isOpen: boolean
   onClose: () => void
-  project: { title: string; description: string; tags: string[]; imageUrl: string } | null
+  project: Project | null
 }) {
-  if (!isOpen || !project) return null
+  const [activeScreenshot, setActiveScreenshot] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (project) {
+      setActiveScreenshot(project.screenshots[0] ?? null)
+    }
+  }, [project])
+
+  if (!isOpen || !project || !activeScreenshot) return null
 
   return (
     <motion.div
@@ -28,7 +45,7 @@ function Lightbox({
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative max-w-4xl w-full bg-card border border-border rounded-lg overflow-hidden"
+        className="relative max-w-5xl w-full bg-card border border-border rounded-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -39,12 +56,36 @@ function Lightbox({
           <X className="w-5 h-5 text-foreground" />
         </button>
 
-        {/* Image area */}
-        <div className="aspect-video bg-secondary pixel-grid flex items-center justify-center">
-          <div className="text-center p-8">
-            <Gamepad2 className="w-20 h-20 text-primary/50 mx-auto mb-4" />
-            <p className="text-muted-foreground font-mono">Your project screenshot here</p>
-            <p className="text-muted-foreground/60 text-sm mt-2">Replace with actual image</p>
+        <div className="bg-background px-4 pt-6 pb-4 sm:px-6">
+          <div className="relative h-[min(60vh,520px)] overflow-hidden rounded-2xl border border-border bg-secondary">
+            <Image
+              src={activeScreenshot}
+              alt={`${project.title} active screenshot`}
+              fill
+              className="object-contain"
+            />
+          </div>
+
+          <p className="mt-3 text-sm text-muted-foreground">Click a thumbnail below to preview the full-screen image.</p>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {project.screenshots.map((screenshot) => (
+              <button
+                key={screenshot}
+                type="button"
+                onClick={() => setActiveScreenshot(screenshot)}
+                className={`overflow-hidden rounded-lg border transition ${screenshot === activeScreenshot ? "border-primary" : "border-border"}`}
+              >
+                <div className="relative aspect-[4/3] h-full w-full">
+                  <Image
+                    src={screenshot}
+                    alt={`${project.title} thumbnail`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -136,13 +177,14 @@ function ProjectCard({
       onClick={onClick}
     >
       <div className="relative overflow-hidden rounded-lg border border-border bg-card aspect-video hover:border-primary transition-colors">
-        {/* Placeholder image with grid pattern */}
-        <div className="absolute inset-0 pixel-grid bg-secondary/50 flex items-center justify-center">
-          <div className="text-center p-4">
-            <Gamepad2 className="w-12 h-12 text-primary/50 mx-auto mb-2" />
-            <p className="text-muted-foreground text-sm font-mono">Screenshot {index + 1}</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">Click to view</p>
-          </div>
+        <div className="absolute inset-0">
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-background/20" />
         </div>
         
         {/* Hover overlay */}
@@ -195,47 +237,47 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 }
 
 export default function Portfolio() {
-  const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null)
-  const [lightboxOpen, setLightboxOpen] = useState(false)
-
-  const projects = [
+  const projects: Project[] = [
     {
-      title: "Project Alpha",
-      description: "A web application built with modern technologies",
-      tags: ["HTML", "CSS", "JavaScript"],
-      imageUrl: "/project1.jpg"
+      title: "Chillingan Reservation",
+      description: "A restaurant reservation and ordering interface with a polished game-inspired UI.",
+      tags: ["React", "UI Design", "Reservation"],
+      imageUrl: "/Chillingan/ChillinganReservation.png",
+      screenshots: [
+        "/Chillingan/ChillinganReservation.png",
+        "/Chillingan/ChillinganOrdering.png",
+        "/Chillingan/ChillingaOrder.png",
+      ],
     },
     {
-      title: "Project Beta",
-      description: "Mobile-first responsive design project",
-      tags: ["HTML", "CSS", "JavaScript"],
-      imageUrl: "/project2.jpg"
+      title: "Auth UI Screens",
+      description: "Login, register, and account screens built for a polished authentication flow.",
+      tags: ["UI/UX", "Authentication", "Design"],
+      imageUrl: "/login/Log%20in.png",
+      screenshots: [
+        "/login/Log%20in.png",
+        "/login/Logged%20in.png",
+        "/login/Register.png",
+      ],
     },
     {
-      title: "Project Gamma",
-      description: "Backend development with database integration",
-      tags: ["Python", "SQL"],
-      imageUrl: "/project3.jpg"
-    },
-    {
-      title: "Project Delta",
-      description: "Full-stack application with database",
-      tags: ["HTML", "CSS", "JavaScript", "SQL"],
-      imageUrl: "/project4.jpg"
-    },
-    {
-      title: "Project Epsilon",
-      description: "Data-driven web application",
-      tags: ["Python", "SQL", "CSS"],
-      imageUrl: "/project5.jpg"
-    },
-    {
-      title: "Project Zeta",
-      description: "Interactive frontend project",
-      tags: ["HTML", "CSS", "JavaScript"],
-      imageUrl: "/project6.jpg"
+      title: "Simple Lending",
+      description: "A lending platform dashboard with screenshot previews of the core flows.",
+      tags: ["Dashboard", "Web App", "Design"],
+      imageUrl: "/SimpleLending/Screenshot%202026-05-15%20094335.png",
+      screenshots: [
+        "/SimpleLending/Screenshot%202026-05-15%20094335.png",
+        "/SimpleLending/Screenshot%202026-05-15%20094346.png",
+        "/SimpleLending/Screenshot%202026-05-15%20094353.png",
+        "/SimpleLending/Screenshot%202026-05-15%20094359.png",
+        "/SimpleLending/Screenshot%202026-05-15%20094405.png",
+        "/SimpleLending/Screenshot%202026-05-15%20094410.png",
+      ],
     },
   ]
+
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const skills = [
     { name: "HTML", level: 85 },
@@ -308,10 +350,16 @@ export default function Portfolio() {
             transition={{ duration: 0.6 }}
             className="mb-6 flex flex-col items-center"
           >
-            {/* Profile Picture Placeholder */}
+            {/* Profile Picture */}
             <div className="relative mb-6">
-              <div className="w-32 h-32 rounded-full bg-card border-4 border-primary overflow-hidden flex items-center justify-center">
-                <User className="w-16 h-16 text-primary/50" />
+              <div className="w-32 h-32 rounded-full bg-card border-4 border-primary overflow-hidden">
+                <Image
+                  src="/ME.png"
+                  alt="Profile picture"
+                  width={128}
+                  height={128}
+                  className="h-full w-full object-cover"
+                />
               </div>
               {/* Gaming-style level badge */}
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-mono rounded-full">
