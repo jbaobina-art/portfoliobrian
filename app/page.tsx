@@ -696,7 +696,7 @@ export default function Portfolio() {
 
             <div className="flex justify-center gap-6 mt-12">
               <a
-                href="https://github.com"
+                href="https://github.com/jbaobina-art"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 bg-card border border-border rounded-lg hover:border-primary hover:text-primary transition-colors"
@@ -714,7 +714,7 @@ export default function Portfolio() {
                 <span className="sr-only">LinkedIn</span>
               </a>
               <a
-                href="mailto:your.email@example.com"
+                href="mailto:jbaobina@universityofbohol.edu.ph"
                 className="p-3 bg-card border border-border rounded-lg hover:border-primary hover:text-primary transition-colors"
               >
                 <Mail className="w-6 h-6" />
